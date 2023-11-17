@@ -4,6 +4,7 @@ import authRoutes from './shared/endpoints/auth/auth.routes'
 import navRoutes from './shared/endpoints/nav/nav.routes'
 import connection from './shared/db/connection'
 // Endpoints del proyecto
+import permisoRoutes from './permisos/permiso.routes'
 
 const router = express.Router()
 
@@ -18,5 +19,6 @@ router.get('/', async (req, res) => {
 router.use('/auth', authRoutes)
 router.use('/nav', navRoutes)
 // Endpoints del proyecto
+router.use('/permisos', permisoRoutes)
 
 export default router
