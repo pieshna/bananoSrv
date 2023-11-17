@@ -7,14 +7,11 @@ import {
   listarNavToNavBar,
   obtenerNavSinParentId
 } from './nav.controller'
-import { authMiddleware } from '../../middleware/auth'
 import { schemaValidation } from '../../middleware/schema'
 import { navSchema } from '../../schemas/nav.schema'
 
 const router = Router()
 const validarSchema = schemaValidation(navSchema)
-
-router.use(authMiddleware)
 
 router.get('/', listarNav)
 router.get('/navbar', listarNavToNavBar)

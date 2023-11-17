@@ -5,6 +5,7 @@ import navRoutes from './shared/endpoints/nav/nav.routes'
 import connection from './shared/db/connection'
 // Endpoints del proyecto
 import permisoRoutes from './permisos/permiso.routes'
+import { authMiddleware } from './shared/middleware/auth'
 
 const router = express.Router()
 
@@ -14,6 +15,9 @@ router.get('/', async (req, res) => {
   console.log(conexion)
   res.json({ message: 'Servidor funcionando correctamente' })
 })
+
+// Midlweware para validar que el usuario este autenticado
+router.use(authMiddleware)
 
 // Endpoints de carpeta shared
 router.use('/auth', authRoutes)
