@@ -8,7 +8,7 @@ const router = express.Router()
 
 // Endpoint para probar el servidor
 router.get('/', (req, res) => {
-  res.send('El servidor está funcionando correctamente')
+  res.json({ message: 'Servidor funcionando correctamente' })
 })
 
 // Endpoints de carpeta shared
