@@ -8,9 +8,10 @@ const validateData = (data: any) => {
 export const handleDataAndResponse = (
   res: Response,
   result: any,
+  code?: number,
   emptyStatusCode = 204
 ) => {
   validateData(result)
-    ? handleResponse(res, result)
+    ? handleResponse(res, result, code)
     : handleResponse(res, result, emptyStatusCode)
 }
