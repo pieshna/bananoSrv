@@ -7,8 +7,8 @@ import {
   resetPassword,
   verifyTokenValid
 } from './auth.controller'
-import { schemaValidation } from '../middleware/schema'
-import { authSchemaLogin, authSchemaRegister } from '../schemas/auth.schema'
+import { schemaValidation } from '../../middleware/schema'
+import { authSchemaLogin, authSchemaRegister } from '../../schemas/auth.schema'
 
 const router = Router()
 

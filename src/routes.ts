@@ -1,13 +1,16 @@
 import express from 'express'
 // rutas esenciales en shared folder
-import authRoutes from './shared/auth/auth.routes'
-import navRoutes from './shared/components/nav/nav.routes'
+import authRoutes from './shared/endpoints/auth/auth.routes'
+import navRoutes from './shared/endpoints/nav/nav.routes'
+import connection from './shared/db/connection'
 // Endpoints del proyecto
 
 const router = express.Router()
 
 // Endpoint para probar el servidor
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+  const conexion = await connection.query('SELECT 1 + 1 AS solution')
+  console.log(conexion)
   res.json({ message: 'Servidor funcionando correctamente' })
 })
 

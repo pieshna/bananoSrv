@@ -1,15 +1,15 @@
 import { Request, Response } from 'express'
-import { generateToken } from '../components/auth/token'
-import { compareHash, hashString } from '../components/auth/hash'
-import administracion from '../components/auth/administracion'
+import { generateToken } from '../../components/auth/token'
+import { compareHash, hashString } from '../../components/auth/encriptar'
+import administracion from '../../components/auth/administracion'
 import authModel from './auth.model'
 import {
   generateResetToken,
   verifyResetLink
-} from '../components/auth/tokenResetPassword'
-import { sendEmailByFunction } from '../components/email/email.controller'
-import { handleError, handleResponse } from '../tools/fetchResponses'
-import { uuidToBin } from '../tools/uuidTools'
+} from '../../components/auth/tokenResetPassword'
+import { sendEmailByFunction } from '../../components/email/email.controller'
+import { handleError, handleResponse } from '../../tools/fetchResponses'
+import { uuidToBin } from '../../tools/uuidTools'
 
 export const login = async (req: Request, res: Response) => {
   try {

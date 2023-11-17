@@ -1,5 +1,5 @@
-import { ModelWithUUID } from '../models/modelWithUUID'
-import { binToUUID, uuidToBin } from '../tools/uuidTools'
+import { ModelWithUUID } from '../../models/modelWithUUID'
+import { binToUUID, uuidToBin } from '../../tools/uuidTools'
 
 class Auth extends ModelWithUUID {
   constructor() {
