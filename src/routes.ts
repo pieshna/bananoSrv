@@ -3,9 +3,10 @@ import express from 'express'
 import authRoutes from './shared/endpoints/auth/auth.routes'
 import navRoutes from './shared/endpoints/nav/nav.routes'
 import connection from './shared/db/connection'
+import { authMiddleware } from './shared/middleware/auth'
 // Endpoints del proyecto
 import permisoRoutes from './permisos/permiso.routes'
-import { authMiddleware } from './shared/middleware/auth'
+import rolRoutes from './roles/rol.routes'
 
 const router = express.Router()
 
@@ -24,5 +25,6 @@ router.use('/auth', authRoutes)
 router.use('/nav', navRoutes)
 // Endpoints del proyecto
 router.use('/permisos', permisoRoutes)
+router.use('/roles', rolRoutes)
 
 export default router
