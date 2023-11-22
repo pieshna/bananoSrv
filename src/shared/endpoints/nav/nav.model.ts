@@ -66,6 +66,16 @@ class NavModel extends ModelWithUUID {
     })
     return result
   }
+
+  async findByUUID(uuid: string): Promise<any> {
+    const result = await super.findByUUID(uuid)
+    result[0].id = result[0].navbar_id
+    delete result[0].navbar_id
+    if (result[0].parent_id)
+      result[0].parent_id = binToUUID(result[0].parent_id)
+    console.log(result[0])
+    return result
+  }
 }
 
 export default new NavModel()

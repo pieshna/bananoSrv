@@ -32,6 +32,16 @@ export const obtenerNavSinParentId = async (req: Request, res: Response) => {
   }
 }
 
+export const obtenerNav = async (req: Request, res: Response) => {
+  try {
+    const id = validarUUID(req)
+    const nav = await navModel.findByUUID(id)
+    handleResponse(res, nav)
+  } catch (error) {
+    handleError(res, error)
+  }
+}
+
 export const agregarNav = async (req: Request, res: Response) => {
   try {
     if (req.body.parent_id) {
