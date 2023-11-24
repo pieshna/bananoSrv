@@ -35,7 +35,7 @@ class NavModel extends ModelWithUUID {
       SELECT
           n.navbar_id,
           n.title,
-          n.link,
+          concat(nwp.link,n.link) as link,
           n.icon,
           n.parent_id,
           nwp.title AS parent_title,
