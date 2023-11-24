@@ -7,12 +7,12 @@ class NavModel extends ModelWithUUID {
   }
 
   async findAll() {
-    const result = await super.findAll()
-    result.map((dato: any) => {
-      dato.id = dato.navbar_id
-      delete dato.navbar_id
-      if (dato.parent_id) dato.parent_id = binToUUID(dato.parent_id)
+    const result = await this.findAllCustom()
+
+    result.map((item: any) => {
+      delete item.parent_title
     })
+
     return result
   }
   async findAllCustom() {
@@ -68,7 +68,6 @@ class NavModel extends ModelWithUUID {
     delete result[0].navbar_id
     if (result[0].parent_id)
       result[0].parent_id = binToUUID(result[0].parent_id)
-    console.log(result[0])
     return result
   }
 }
