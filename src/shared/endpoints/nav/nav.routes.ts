@@ -6,7 +6,8 @@ import {
   eliminarNav,
   listarNavToNavBar,
   obtenerNavSinParentId,
-  obtenerNav
+  obtenerNav,
+  obtenerNavCustom
 } from './nav.controller'
 import { schemaValidation } from '../../middleware/schema'
 import { navSchema } from '../../schemas/nav.schema'
@@ -17,6 +18,7 @@ const validarSchema = schemaValidation(navSchema)
 router.get('/', listarNav)
 router.get('/navbar', listarNavToNavBar)
 router.get('/sin-parent-id', obtenerNavSinParentId)
+router.get('/custom', obtenerNavCustom)
 router.get('/:id', obtenerNav)
 router.post('/', validarSchema, agregarNav)
 router.put('/:id', validarSchema, editarNav)

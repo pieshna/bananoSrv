@@ -16,54 +16,49 @@ class NavModel extends ModelWithUUID {
     return result
   }
   async findAllCustom() {
-    const sql = `WITH RECURSIVE NavbarHierarchy AS (
+    const sql = `
+    WITH RECURSIVE navbarWithParentTitle AS (
       SELECT
-        n.navbar_id AS id,
-        n.title,
-        n.link,
-        n.icon,
-        n.parent_id,
-        n.created_at,
-        n.updated_at,
-        NULL AS parent_title
+          n.navbar_id,
+          n.title,
+          n.link,
+          n.icon,
+          n.parent_id,
+          CAST('' AS CHAR(255)) AS parent_title,
+          n.created_at,
+          n.updated_at
       FROM
-        navbar n
+          navbar n
       WHERE
-        n.parent_id IS NULL
+          n.parent_id IS NULL
       UNION ALL
       SELECT
-        n.navbar_id AS id,
-        n.title,
-        n.link,
-        n.icon,
-        n.parent_id,
-        n.created_at,
-        n.updated_at,
-        p.title AS parent_title
+          n.navbar_id,
+          n.title,
+          n.link,
+          n.icon,
+          n.parent_id,
+          nwp.title AS parent_title,
+          n.created_at,
+          n.updated_at
       FROM
-        NavbarHierarchy nh
-      JOIN
-        navbar n ON nh.id = n.parent_id
-      LEFT JOIN
-        navbar p ON nh.parent_id = p.navbar_id
-    )
-    SELECT
-      nh.id,
-      nh.title,
-      nh.link,
-      nh.icon,
-      nh.parent_title,
-      nh.created_at,
-      nh.updated_at
-    FROM
-      NavbarHierarchy nh;
+          navbar n
+      INNER JOIN navbarWithParentTitle nwp ON
+          n.parent_id = nwp.navbar_id
+  )
+  SELECT BIN_TO_UUID(nwp.navbar_id) AS navbar_id,
+      nwp.title,
+      nwp.link,
+      nwp.icon,
+      BIN_TO_UUID(nwp.parent_id) AS parent_id,
+      nwp.parent_title,
+      nwp.created_at,
+      nwp.updated_at
+  FROM
+      navbarWithParentTitle nwp;
     `
     const result = await super.findByQuery(sql)
-    result.map((dato: any) => {
-      dato.id = binToUUID(dato.id)
-      delete dato.navbar_id
-      if (dato.parent_id) dato.parent_id = binToUUID(dato.parent_id)
-    })
+
     return result
   }
 

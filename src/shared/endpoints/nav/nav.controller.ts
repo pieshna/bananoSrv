@@ -42,6 +42,15 @@ export const obtenerNav = async (req: Request, res: Response) => {
   }
 }
 
+export const obtenerNavCustom = async (req: Request, res: Response) => {
+  try {
+    const nav = await navModel.findAllCustom()
+    handleResponse(res, nav)
+  } catch (error) {
+    handleError(res, error)
+  }
+}
+
 export const agregarNav = async (req: Request, res: Response) => {
   try {
     if (req.body.parent_id) {
