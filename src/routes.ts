@@ -8,6 +8,7 @@ import permisoRoutes from './permisos/permiso.routes'
 import rolRoutes from './roles/rol.routes'
 import rol_permisoRoutes from './roles_permisos/rol_permiso.routes'
 import aplicacionRoutes from './aplicaciones/aplicacion.routes'
+import usuariosRoutes from './usuarios/usuario.routes'
 
 const router = express.Router()
 
@@ -27,5 +28,6 @@ router.use('/aplicaciones', aplicacionRoutes)
 router.use('/permisos', permisoRoutes)
 router.use('/roles', rolRoutes)
 router.use('/roles-permisos', rol_permisoRoutes)
+router.use('/usuarios', usuariosRoutes)
 
 export default router
