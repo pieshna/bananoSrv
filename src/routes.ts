@@ -7,6 +7,7 @@ import { authMiddleware } from './shared/middleware/auth'
 import permisoRoutes from './permisos/permiso.routes'
 import rolRoutes from './roles/rol.routes'
 import rol_permisoRoutes from './roles_permisos/rol_permiso.routes'
+import aplicacionRoutes from './aplicaciones/aplicacion.routes'
 
 const router = express.Router()
 
@@ -22,6 +23,7 @@ router.use(authMiddleware)
 router.use('/auth', authRoutes)
 router.use('/nav', navRoutes)
 // Endpoints del proyecto
+router.use('/aplicaciones', aplicacionRoutes)
 router.use('/permisos', permisoRoutes)
 router.use('/roles', rolRoutes)
 router.use('/roles-permisos', rol_permisoRoutes)
