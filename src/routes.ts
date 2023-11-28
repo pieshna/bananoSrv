@@ -18,11 +18,12 @@ router.get('/', async (req, res) => {
   res.json({ message: 'Servidor funcionando correctamente' })
 })
 
+// Endponts para la autenticacion (dentro lleva authMiddleware)
+router.use('/auth', authRoutes)
 // Midlweware para validar que el usuario este autenticado
 router.use(authMiddleware)
 
 // Endpoints de carpeta shared
-router.use('/auth', authRoutes)
 router.use('/nav', navRoutes)
 router.use('/administracion', adminRoutes)
 // Endpoints del proyecto
