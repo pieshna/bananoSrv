@@ -6,7 +6,6 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  return next()
   const authHeader = req.headers.authorization
 
   if (!authHeader) {
