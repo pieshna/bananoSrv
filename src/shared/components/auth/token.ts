@@ -1,12 +1,10 @@
 import jwt from 'jsonwebtoken'
 import { envToConst } from '../../envToConst'
 
-interface TokenPayload {
+export interface TokenPayload {
   userId: string
   userName: string
-  userPicture: string
-  userRole: string
-  userRoleId: string
+  aplicacionId: string
 }
 
 export const generateToken = (payload: TokenPayload, time: number): string => {

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { generateToken } from '../../components/auth/token'
+import { TokenPayload, generateToken } from '../../components/auth/token'
 import { compareHash, hashString } from '../../components/auth/encriptar'
 import administracion from '../../components/auth/administracion'
 import authModel from './auth.model'
@@ -15,10 +15,10 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { correo, password } = req.body
 
-    const user: any = await authModel.findByFieldOnlyOne('correo', correo)
+    const user: any = await authModel.findByFieldOnlyOne('email', correo)
     const tiempoToken: any = await administracion.getTiempoToken()
 
-    const username = await authModel.findByFieldOnlyOne('usuario', correo)
+    const username = await authModel.findByFieldOnlyOne('username', correo)
 
     if (!username && !user) {
       throw new Error('Correo electrónico o usuario incorrectos')
@@ -33,16 +33,13 @@ export const login = async (req: Request, res: Response) => {
       throw new Error('Correo electrónico o contraseña incorrectos')
     }
 
-    const jwt = generateToken(
-      {
-        userId: username ? username.usuario_id : user.usuario_id,
-        userName: username ? username.nombre : user.nombre,
-        userPicture: username ? username.avatar : user.avatar || '',
-        userRole: username ? username.rol : user.rol,
-        userRoleId: username ? username.rol_id : user.rol_id
-      },
-      tiempoToken
-    )
+    const payload: TokenPayload = {
+      userId: username ? username.usuario_id : user.usuario_id,
+      userName: username ? username.nombre : user.nombre,
+      aplicacionId: username ? username.aplicacion_id : user.aplicacion_id
+    }
+
+    const jwt = generateToken(payload, tiempoToken)
 
     handleResponse(res, jwt)
   } catch (error) {
@@ -57,7 +54,7 @@ export const register = async (req: Request, res: Response) => {
     const { correo, password, nombre } = req.body
 
     const existingUser: any = await authModel.findByFieldOnlyOne(
-      'correo',
+      'email',
       correo
     )
     if (existingUser) {
@@ -74,16 +71,13 @@ export const register = async (req: Request, res: Response) => {
       throw new Error(user.error || 'Error al crear el usuario')
     }
 
-    const jwt = generateToken(
-      {
-        userId: user.insertId,
-        userName: nombre,
-        userPicture: '',
-        userRole: req.body.rol || '',
-        userRoleId: req.body.rol_id || ''
-      },
-      tiempoToken
-    )
+    const payload: TokenPayload = {
+      userId: user.insertId,
+      userName: nombre,
+      aplicacionId: user.aplicacion_id
+    }
+
+    const jwt = generateToken(payload, tiempoToken)
 
     handleResponse(res, jwt)
   } catch (error) {
