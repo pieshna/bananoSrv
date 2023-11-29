@@ -1,90 +1,65 @@
 import { Request, Response } from 'express'
 import navModel from './nav.model'
 import { convertToNavbarStructure } from './utilsnavbar'
-import { handleError, handleResponse } from '../../tools/fetchResponses'
 import { uuidToBin, validarUUID } from '../../tools/uuidTools'
+import { asyncHandler } from '../../middleware/contollers'
+import { handleDataAndResponse } from '../../tools/validateDataToResponse'
 
-export const listarNavToNavBar = async (req: Request, res: Response) => {
-  try {
+export const listarNavToNavBar = asyncHandler(
+  async (req: Request, res: Response) => {
     const nav = await navModel.findAll()
     const data = convertToNavbarStructure(nav)
-    handleResponse(res, data)
-  } catch (error) {
-    handleError(res, error)
+    handleDataAndResponse(res, data)
   }
-}
+)
 
-export const listarNav = async (req: Request, res: Response) => {
-  try {
-    const nav = await navModel.findAll()
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
-  }
-}
+export const listarNav = asyncHandler(async (req: Request, res: Response) => {
+  const nav = await navModel.findAll()
+  handleDataAndResponse(res, nav)
+})
 
-export const obtenerNavSinParentId = async (req: Request, res: Response) => {
-  try {
+export const obtenerNavSinParentId = asyncHandler(
+  async (req: Request, res: Response) => {
     const nav = await navModel.findByFieldIfIsNull('parent_id')
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
+    handleDataAndResponse(res, nav)
   }
-}
+)
 
-export const obtenerNav = async (req: Request, res: Response) => {
-  try {
-    const id = validarUUID(req)
-    const nav = await navModel.findByUUID(id)
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
-  }
-}
+export const obtenerNav = asyncHandler(async (req: Request, res: Response) => {
+  const id = validarUUID(req)
+  const nav = await navModel.findByUUID(id)
+  handleDataAndResponse(res, nav)
+})
 
-export const obtenerNavCustom = async (req: Request, res: Response) => {
-  try {
+export const obtenerNavCustom = asyncHandler(
+  async (req: Request, res: Response) => {
     const nav = await navModel.findAllCustom()
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
+    handleDataAndResponse(res, nav)
   }
-}
+)
 
-export const agregarNav = async (req: Request, res: Response) => {
-  try {
-    if (req.body.parent_id) {
-      req.body.parent_id = uuidToBin(req.body.parent_id)
-    }
-    const nav = await navModel.create(req.body)
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
+export const agregarNav = asyncHandler(async (req: Request, res: Response) => {
+  if (req.body.parent_id) {
+    req.body.parent_id = uuidToBin(req.body.parent_id)
   }
-}
+  const nav = await navModel.create(req.body)
+  handleDataAndResponse(res, nav)
+})
 
-export const editarNav = async (req: Request, res: Response) => {
-  try {
-    const id = validarUUID(req)
-    if (req.body.parent_id && req.body.parent_id !== '') {
-      req.body.parent_id = uuidToBin(req.body.parent_id)
-    } else {
-      req.body.parent_id = null
-    }
-
-    const nav = await navModel.update(id, req.body)
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
+export const editarNav = asyncHandler(async (req: Request, res: Response) => {
+  const id = validarUUID(req)
+  if (req.body.parent_id && req.body.parent_id !== '') {
+    req.body.parent_id = uuidToBin(req.body.parent_id)
+  } else {
+    req.body.parent_id = null
   }
-}
 
-export const eliminarNav = async (req: Request, res: Response) => {
-  try {
-    const id = validarUUID(req)
-    const nav = await navModel.delete(id)
-    handleResponse(res, nav)
-  } catch (error) {
-    handleError(res, error)
-  }
-}
+  const nav = await navModel.update(id, req.body)
+  handleDataAndResponse(res, nav)
+})
+
+export const eliminarNav = asyncHandler(async (req: Request, res: Response) => {
+  const id = validarUUID(req)
+  const nav = await navModel.delete(id)
+  handleDataAndResponse(res, nav)
+})
