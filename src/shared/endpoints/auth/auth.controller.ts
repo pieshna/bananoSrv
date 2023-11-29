@@ -8,98 +8,84 @@ import {
   verifyResetLink
 } from '../../components/auth/tokenResetPassword'
 import { sendEmailByFunction } from '../../components/email/email.controller'
-import { handleError, handleResponse } from '../../tools/fetchResponses'
-import { uuidToBin } from '../../tools/uuidTools'
+import { asyncHandler } from '../../middleware/contollers'
+import { handleDataAndResponse } from '../../tools/validateDataToResponse'
 
-export const login = async (req: Request, res: Response) => {
-  try {
-    const { correo, password } = req.body
-
-    const user: any = await authModel.findByFieldOnlyOne('email', correo)
-    const tiempoToken: any = await administracion.getTiempoToken()
-
-    const username = await authModel.findByFieldOnlyOne('username', correo)
-
-    if (!username && !user) {
-      throw new Error('Correo electrónico o usuario incorrectos')
-    }
-
-    const passwordMatch = await compareHash(
-      password,
-      username ? username.password : user.password
-    )
-
-    if (!passwordMatch) {
-      throw new Error('Correo electrónico o contraseña incorrectos')
-    }
-
-    const payload: TokenPayload = {
-      userId: username ? username.usuario_id : user.usuario_id,
-      userName: username ? username.nombre : user.nombre,
-      aplicacionId: username ? username.aplicacion_id : user.aplicacion_id
-    }
-
-    const jwt = generateToken(payload, tiempoToken)
-
-    handleResponse(res, jwt)
-  } catch (error) {
-    handleError(res, error)
-  }
+const tiempoParaToken = async () => {
+  return await administracion.getTiempoToken()
 }
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const tiempoToken: any = await administracion.getTiempoToken()
-
-    const { correo, password, nombre } = req.body
-
-    const existingUser: any = await authModel.findByFieldOnlyOne(
-      'email',
-      correo
-    )
-    if (existingUser) {
-      throw new Error('El correo electrónico ya existe')
-    }
-
-    req.body.rol_id = uuidToBin(req.body.rol_id)
-
-    req.body.password = await hashString(password)
-
-    const user: any = await authModel.create(req.body)
-
-    if (user?.error) {
-      throw new Error(user.error || 'Error al crear el usuario')
-    }
-
-    const payload: TokenPayload = {
-      userId: user.insertId,
-      userName: nombre,
-      aplicacionId: user.aplicacion_id
-    }
-
-    const jwt = generateToken(payload, tiempoToken)
-
-    handleResponse(res, jwt)
-  } catch (error) {
-    handleError(res, error)
+const getUser = async (correo: string) => {
+  const user = await authModel.findByFieldOnlyOne('email', correo)
+  const username = await authModel.findByFieldOnlyOne('username', correo)
+  if (!user && !username) {
+    throw new Error('Usuario no encontrado')
   }
+  return user || username
 }
 
-export const forgotPassword = async (req: Request, res: Response) => {
-  try {
-    const { email } = req.body
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { correo, password } = req.body
+  const tiempoToken: any = await tiempoParaToken()
+
+  const user: any = await getUser(correo)
+
+  const isPasswordCorrect = await compareHash(password, user.password)
+
+  if (!isPasswordCorrect) {
+    throw new Error('Contraseña incorrecta')
+  }
+
+  const payload: TokenPayload = {
+    userId: user.usuario_id,
+    userName: user.nombre,
+    aplicacionId: user.aplicacion_id
+  }
+
+  const jwt = generateToken(payload, tiempoToken)
+
+  handleDataAndResponse(res, jwt)
+})
+
+export const register = asyncHandler(async (req: Request, res: Response) => {
+  const { correo, password, nombre } = req.body
+  const tiempoToken = await tiempoParaToken()
+
+  const existingUser = await getUser(correo)
+  if (existingUser) {
+    throw new Error('El correo electrónico ya existe')
+  }
+
+  req.body.password = await hashString(password)
+
+  const user: any = await authModel.create(req.body)
+
+  const payload: TokenPayload = {
+    userId: user.insertId,
+    userName: nombre,
+    aplicacionId: user.aplicacion_id
+  }
+
+  const jwt = generateToken(payload, tiempoToken)
+
+  handleDataAndResponse(res, jwt)
+})
+
+export const forgotPassword = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { correo } = req.body
     const origen = req.headers.origin
 
-    const user: any = await authModel.findByFieldOnlyOne('email', email)
+    const user: any = await getUser(correo)
 
     if (!user) {
       throw new Error('Usuario no encontrado')
     }
 
-    const token = generateResetToken(user.id)
+    const token = generateResetToken(user.usuario_id)
 
     const emailSent = await sendEmailByFunction(
-      email,
+      correo,
       'Restablecer contraseña',
       `<a href="${origen}/reset-password/${token}">Restablecer contraseña</a>`
     )
@@ -108,14 +94,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
       throw new Error('Error al enviar el correo electrónico')
     }
 
-    handleResponse(res, emailSent)
-  } catch (error) {
-    handleError(res, error)
+    handleDataAndResponse(res, { message: 'Correo electrónico enviado' })
   }
-}
+)
 
-export const resetPassword = async (req: Request, res: Response) => {
-  try {
+export const resetPassword = asyncHandler(
+  async (req: Request, res: Response) => {
     const { token } = req.params
     const { password } = req.body
 
@@ -125,7 +109,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       throw new Error('Token inválido')
     }
 
-    const user: any = await authModel.findByFieldOnlyOne('id', userId)
+    const user: any = await authModel.findByFieldOnlyOne('usuario_id', userId)
 
     if (!user) {
       throw new Error('Usuario no encontrado')
@@ -134,14 +118,12 @@ export const resetPassword = async (req: Request, res: Response) => {
     const hashedPassword = await hashString(password)
     await authModel.update(user.id, { password: hashedPassword })
 
-    handleResponse(res, { message: 'Contraseña actualizada' })
-  } catch (error) {
-    handleError(res, error)
+    handleDataAndResponse(res, { message: 'Contraseña actualizada' })
   }
-}
+)
 
-export const verifyTokenValid = async (req: Request, res: Response) => {
-  try {
+export const verifyTokenValid = asyncHandler(
+  async (req: Request, res: Response) => {
     const { token } = req.params
 
     const userId = verifyResetLink(token)
@@ -150,14 +132,12 @@ export const verifyTokenValid = async (req: Request, res: Response) => {
       throw new Error('Token inválido')
     }
 
-    const user: any = await authModel.findByFieldOnlyOne('id', userId)
+    const user: any = await authModel.findByFieldOnlyOne('usuario_id', userId)
 
     if (!user) {
       throw new Error('Usuario no encontrado')
     }
 
-    handleResponse(res, { message: 'Token válido' })
-  } catch (error) {
-    handleError(res, error)
+    handleDataAndResponse(res, { message: 'Token válido' })
   }
-}
+)
