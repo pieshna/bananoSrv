@@ -8,9 +8,12 @@ const validateEnv = (ToValidate: string): string => {
   return process.env[ToValidate] as string
 }
 
-const validateEnvToArray = (ToValidate: string): string[] => {
+const validateEnvToArray = (ToValidate: string, spaces?: boolean): string[] => {
   if (!process.env[ToValidate]) {
     throw new Error(`La variable de entorno ${ToValidate} no existe`)
+  }
+  if (spaces) {
+    process.env[ToValidate] = process.env[ToValidate]?.replace(/\s/g, '')
   }
   return process.env[ToValidate]?.split(',') || [ToValidate]
 }
@@ -24,5 +27,5 @@ export const envToConst = {
   SALTOS: validateEnv('SALTOS'),
   JWT_SECRET: validateEnv('JWT_SECRET'),
   RESEND_KEY: validateEnv('RESEND_KEY'),
-  CORS_ALLOWED: validateEnvToArray('CORS_ALLOWED')
+  CORS_ALLOWED: validateEnvToArray('CORS_ALLOWED', true)
 }
