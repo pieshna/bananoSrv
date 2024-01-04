@@ -39,6 +39,8 @@ export class ModelWithUUID extends DefaultModel {
   async createMany(data: any[]) {
     data.map((item) => addUUID(item, this.idName))
     const added = await super.createMany(data)
+    const insertedIds = data.map((item) => item[this.idName])
+    added.insertId = binToUUID(insertedIds)
     return added
   }
 
