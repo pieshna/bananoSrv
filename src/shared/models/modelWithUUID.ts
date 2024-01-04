@@ -44,6 +44,16 @@ export class ModelWithUUID extends DefaultModel {
     return super.deleteWithUUID(this.idName, uuid)
   }
 
+  async findByField(field: string, value: string) {
+    const datos = await super.findByField(field, value)
+    if (datos) {
+      datos.map((dato: any) => {
+        dato[this.idName] = binToUUID(dato[this.idName])
+      })
+    }
+    return datos
+  }
+
   async findByFieldOnlyOne(field: string, value: string) {
     const datos = await super.findByFieldOnlyOne(field, value)
     if (datos) {
