@@ -42,6 +42,20 @@ export class DefaultModel {
     return this.query(`INSERT INTO ${this.table} SET ?`, [data])
   }
 
+  protected async createMany(data: any[]) {
+    const conCreatedAt = data.map((item) => addCreatedAt(item))
+    const values = conCreatedAt.map((item) => Object.values(item))
+    const columns = Object.keys(conCreatedAt[0]).join(',')
+    const placeholders = Array(conCreatedAt.length)
+      .fill(`(${values[0].map(() => '?').join(',')})`)
+      .join(',')
+    const sql = `INSERT INTO ${this.table} (${columns}) VALUES ${placeholders}`
+
+    const flattenedValues = values.reduce((acc, val) => acc.concat(val), [])
+
+    return this.query(sql, flattenedValues)
+  }
+
   protected async updateWithId(id: number, json: unknown) {
     const { ...data } = addUpdatedAt(json)
     return this.query(`UPDATE ${this.table} SET ? WHERE id = ?`, [data, id])

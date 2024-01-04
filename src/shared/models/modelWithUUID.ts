@@ -36,6 +36,12 @@ export class ModelWithUUID extends DefaultModel {
     return added
   }
 
+  async createMany(data: any[]) {
+    data.map((item) => addUUID(item, this.idName))
+    const added = await super.createMany(data)
+    return added
+  }
+
   async update(uuid: string, json: unknown) {
     return this.updateWithUUID(this.idName, uuid, json)
   }
