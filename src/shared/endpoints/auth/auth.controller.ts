@@ -10,6 +10,7 @@ import {
 import { sendEmailByFunction } from '../../components/email/email.controller'
 import { asyncHandler } from '../../middleware/contollers'
 import { handleDataAndResponse } from '../../tools/validateDataToResponse'
+import { binToUUID } from '../../tools/uuidTools'
 
 const tiempoParaToken = async () => {
   return await administracion.getTiempoToken()
@@ -31,6 +32,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const user: any = await getUser(correo)
 
   const isPasswordCorrect = await compareHash(password, user.password)
+
+  user.aplicacion_id = binToUUID(user.aplicacion_id)
 
   if (!isPasswordCorrect) {
     throw new Error('Contraseña incorrecta')
@@ -59,6 +62,8 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   req.body.password = await hashString(password)
 
   const user: any = await authModel.create(req.body)
+
+  user.aplicacion_id = binToUUID(user.aplicacion_id)
 
   const payload: TokenPayload = {
     userId: user.insertId,
