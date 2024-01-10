@@ -134,7 +134,7 @@ export class DefaultModel {
     return rows
   }
 
-  protected async findByQuery(query: string) {
-    return this.query(query)
+  protected async findByQuery(query: string, params?: any[]) {
+    return this.query(query, params)
   }
 }
