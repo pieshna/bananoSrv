@@ -5,6 +5,8 @@ export interface TokenPayload {
   userId: string
   userName: string
   aplicacionId: string
+  rolId: string
+  rol: string
 }
 
 export const generateToken = (payload: TokenPayload, time: number): string => {
