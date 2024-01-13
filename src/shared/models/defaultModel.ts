@@ -42,15 +42,23 @@ export class DefaultModel {
     return this.query(`INSERT INTO ${this.table} SET ?`, [data])
   }
 
-  protected async createMany(data: any[]) {
+  protected async createMany(data: any[], table = this.table, ids?: string[]) {
     const conCreatedAt = data.map((item) => addCreatedAt(item))
     const values = conCreatedAt.map((item) => Object.values(item))
     const columns = Object.keys(conCreatedAt[0]).join(',')
     const placeholders = Array(conCreatedAt.length)
-      .fill(`(${values[0].map(() => '?').join(',')})`)
+      .fill(
+        `(${values[0]
+          .map((valor) => {
+            if (ids?.includes(columns.split(',')[values[0].indexOf(valor)])) {
+              return 'uuid_to_bin(?)'
+            }
+            return '?'
+          })
+          .join(',')})`
+      )
       .join(',')
-    const sql = `INSERT INTO ${this.table} (${columns}) VALUES ${placeholders}`
-
+    const sql = `INSERT INTO ${table} (${columns}) VALUES ${placeholders}`
     const flattenedValues = values.reduce((acc, val) => acc.concat(val), [])
 
     return this.query(sql, flattenedValues)
