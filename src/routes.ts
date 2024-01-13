@@ -12,6 +12,7 @@ import aplicacionRoutes from './aplicaciones/aplicacion.routes'
 import usuariosRoutes from './usuarios/usuario.routes'
 import clientesRoutes from './clientes/cliente.routes'
 import usuario_rolRoutes from './usuarios_roles/usuario_rol.routes'
+import comprasRoutes from './compras/compra.routes'
 
 const router = express.Router()
 
@@ -36,5 +37,6 @@ router.use('/roles-permisos', rol_permisoRoutes)
 router.use('/usuarios', usuariosRoutes)
 router.use('/clientes', clientesRoutes)
 router.use('/usuarios-roles', usuario_rolRoutes)
+router.use('/compras', comprasRoutes)
 
 export default router
