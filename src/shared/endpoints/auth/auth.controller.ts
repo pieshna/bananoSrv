@@ -30,6 +30,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const tiempoToken: any = await tiempoParaToken()
 
   const user: any = await getUser(correo)
+  console.log(user)
 
   const isPasswordCorrect = await compareHash(password, user.password)
 
@@ -42,7 +43,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const payload: TokenPayload = {
     userId: user.usuario_id,
     userName: user.nombre,
-    aplicacionId: user.aplicacion_id
+    aplicacionId: user.aplicacion_id,
+    rolId: user.rol_id,
+    rol: user.rol
   }
 
   const jwt = generateToken(payload, tiempoToken)
@@ -68,7 +71,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const payload: TokenPayload = {
     userId: user.insertId,
     userName: nombre,
-    aplicacionId: user.aplicacion_id
+    aplicacionId: user.aplicacion_id,
+    rolId: user.rol_id,
+    rol: user.rol
   }
 
   const jwt = generateToken(payload, tiempoToken)
