@@ -7,6 +7,6 @@ const router = Router()
 
 router.get('/', getCompras)
 router.get('/:id', getCompra)
-router.post('/', createCompra)
+router.post('/', schemaValidation(compraSchema), createCompra)
 
 export default router
