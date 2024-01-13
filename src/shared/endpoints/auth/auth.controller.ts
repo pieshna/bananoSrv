@@ -30,7 +30,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const tiempoToken: any = await tiempoParaToken()
 
   const user: any = await getUser(correo)
-  console.log(user)
 
   const isPasswordCorrect = await compareHash(password, user.password)
 
