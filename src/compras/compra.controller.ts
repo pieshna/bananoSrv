@@ -14,6 +14,13 @@ export const getCompra = asyncHandler(async (req: Request, res: Response) => {
   handleDataAndResponse(res, result)
 })
 
+export const getComprasUltimos30Dias = asyncHandler(
+  async (req: Request, res: Response) => {
+    const result = await compraModel.findLast30Days()
+    handleDataAndResponse(res, result)
+  }
+)
+
 const getPagado = (total_pagado: number, total: number) => {
   if (total_pagado == total) return 1
   if (total_pagado == 0) return 0
