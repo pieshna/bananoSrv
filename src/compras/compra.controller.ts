@@ -52,3 +52,11 @@ export const createCompra = asyncHandler(
     }
   }
 )
+
+export const deleteCompra = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params
+    const result = await compraModel.delete(id)
+    handleDataAndResponse(res, result)
+  }
+)

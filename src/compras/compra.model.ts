@@ -28,6 +28,31 @@ class CompraModel extends ModelWithUUID {
     super('compras', 'compra_id')
   }
 
+  async findAll() {
+    const sql = `
+    SELECT
+    bin_to_uuid(c.compra_id) as compra_id,
+    c.fecha_compra,
+    concat(cl.nombre, ' ',
+    coalesce(cl.apellido, '')
+    ) as cliente,
+    c.cantidad_quintales,
+    c.quintales_porcentaje,
+    c.precio_quintal,
+    c.total_pagado,
+    c.total,
+    c.created_at,
+    c.updated_at
+    from compras as c
+    left join clientes_compras as cc on c.compra_id = cc.compra_id
+    left join clientes as cl on cc.cliente_id = cl.cliente_id
+    order by c.fecha_compra desc
+    
+    `
+    const result = await super.findByQuery(sql)
+    return result
+  }
+
   async createMany(data: any) {
     const result = await super.createManyUUID(data)
     return result
@@ -111,6 +136,15 @@ class CompraModel extends ModelWithUUID {
     })
 
     return comprasGroupArray
+  }
+
+  async delete(compra_id: string) {
+    await super.findByQuery(
+      'DELETE FROM clientes_compras WHERE compra_id = ?',
+      [compra_id]
+    )
+    const result = await super.delete(compra_id)
+    return result
   }
 }
 
