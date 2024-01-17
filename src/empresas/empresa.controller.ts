@@ -58,10 +58,6 @@ export const updateEmpresa = asyncHandler(
 export const deleteEmpresa = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params
-    const deleteForeignKey = await empresaModel.deleteEmpresa(id)
-    if (deleteForeignKey.affectedRows === 0) {
-      throw new Error('No se pudo eliminar la empresa')
-    }
     const result = await empresaModel.delete(id)
     handleDataAndResponse(res, result)
   }

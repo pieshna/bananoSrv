@@ -34,7 +34,7 @@ class EmpresaModel extends ModelWithUUID {
 
   async findAll() {
     const sql =
-      'select e.empresa_id, e.nombre,e.direccion,e.telefono,ed.dias_venta,ed.precio_quintal from empresas e left join empresas_detalle ed on e.empresa_id = ed.empresa_id'
+      'select e.empresa_id, e.nombre,e.direccion,e.telefono,ed.dias_venta,ed.precio_quintal from empresas e left join empresas_detalle ed on e.empresa_id = ed.empresa_id where e.activo = 1'
     const datos = await super.findByQuery(sql)
     if (!datos) {
       throw new Error('No se encontraron datos')
@@ -88,8 +88,8 @@ class EmpresaModel extends ModelWithUUID {
     return super.findByQuery(sql, [dias, precio_quintal, uuidToBin(empresa_id)])
   }
 
-  async deleteEmpresa(empresa_id: string) {
-    const sql = 'delete from aplicacion_empresa where empresa_id = ?'
+  async delete(empresa_id: string) {
+    const sql = 'update empresas set activo=0 where empresa_id = ?'
     return super.findByQuery(sql, [uuidToBin(empresa_id)])
   }
 }
