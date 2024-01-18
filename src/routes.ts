@@ -14,6 +14,7 @@ import clientesRoutes from './clientes/cliente.routes'
 import usuario_rolRoutes from './usuarios_roles/usuario_rol.routes'
 import comprasRoutes from './compras/compra.routes'
 import empresasRoutes from './empresas/empresa.routes'
+import precioRoutes from './precios/precio.routes'
 
 const router = express.Router()
 
@@ -40,5 +41,6 @@ router.use('/clientes', clientesRoutes)
 router.use('/usuarios-roles', usuario_rolRoutes)
 router.use('/compras', comprasRoutes)
 router.use('/empresas', empresasRoutes)
+router.use('/precios', precioRoutes)
 
 export default router
