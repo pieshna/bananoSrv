@@ -138,6 +138,32 @@ class CompraModel extends ModelWithUUID {
     return comprasGroupArray
   }
 
+  async update(uuid: string, json: any): Promise<any> {
+    const result = await super.update(uuid, json)
+
+    const totalPagado = json['total_pagado'] as number
+    const total = json['total'] as number
+    let dataAddSQL = ''
+    let pagado = 0
+    if (totalPagado == total) {
+      pagado = 1
+      dataAddSQL = ', pagado_at = now(), updated_at = now()'
+    }
+    if (totalPagado == 0) {
+      pagado = 0
+      dataAddSQL = ', updated_at = now()'
+    }
+    if (totalPagado > 0 && totalPagado < total) {
+      pagado = 2
+      dataAddSQL = ', updated_at = now()'
+    }
+
+    const sql = `update clientes_compras set pagado = ? ${dataAddSQL} where compra_id = ?`
+
+    await super.findByQuery(sql, [pagado, uuidToBin(uuid)])
+    return result
+  }
+
   async delete(compra_id: string) {
     await super.findByQuery(
       'DELETE FROM clientes_compras WHERE compra_id = ?',
