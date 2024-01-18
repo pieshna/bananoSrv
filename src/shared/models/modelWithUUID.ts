@@ -67,7 +67,7 @@ export class ModelWithUUID extends DefaultModel {
     return datos
   }
 
-  async findByFieldOnlyOne(field: string, value: string) {
+  async findByFieldOnlyOne(field: string, value: string | Buffer) {
     const datos = await super.findByFieldOnlyOne(field, value)
     if (datos) {
       datos[this.idName] = binToUUID(datos[this.idName])

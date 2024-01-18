@@ -130,7 +130,10 @@ export class DefaultModel {
     return rows
   }
 
-  protected async findByFieldOnlyOne(field: string, value: string | number) {
+  protected async findByFieldOnlyOne(
+    field: string,
+    value: string | number | Buffer
+  ) {
     const sql = `SELECT * FROM ${this.table} WHERE ${field} = ?`
     const rows = await this.query(sql, [value])
     return rows[0]
