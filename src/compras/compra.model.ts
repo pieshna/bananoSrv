@@ -39,14 +39,14 @@ class CompraModel extends ModelWithUUID {
     c.cantidad_quintales,
     c.quintales_porcentaje,
     c.precio_quintal,
-    c.total_pagado,
     c.total,
+    c.total_pagado,
     c.created_at,
     c.updated_at
     from compras as c
     left join clientes_compras as cc on c.compra_id = cc.compra_id
     left join clientes as cl on cc.cliente_id = cl.cliente_id
-    order by c.fecha_compra desc
+    order by c.created_at desc
     
     `
     const result = await super.findByQuery(sql)
