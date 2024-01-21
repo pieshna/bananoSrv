@@ -14,6 +14,14 @@ export const getEmpresa = asyncHandler(async (req: Request, res: Response) => {
   handleDataAndResponse(res, result)
 })
 
+export const getEmpresaByAplicacion = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params
+    const result = await empresaModel.findByAplicacion(id)
+    handleDataAndResponse(res, result)
+  }
+)
+
 export const createEmpresa = asyncHandler(
   async (req: Request, res: Response) => {
     const { aplicacion_id, dias, precio_quintal } = req.body

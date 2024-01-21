@@ -92,6 +92,27 @@ class EmpresaModel extends ModelWithUUID {
     const sql = 'update empresas set activo=0 where empresa_id = ?'
     return super.findByQuery(sql, [uuidToBin(empresa_id)])
   }
+
+  async findByAplicacion(aplicacion_id: string) {
+    const sql = `select 
+      e.empresa_id, e.nombre,e.direccion,
+      e.telefono,ed.dias_venta,ed.precio_quintal 
+      from empresas e 
+      left join empresas_detalle ed on e.empresa_id = ed.empresa_id 
+      where e.activo = 1 
+      and e.empresa_id in (select empresa_id from aplicacion_empresa where aplicacion_id = ?)`
+    const datos = await super.findByQuery(sql, [uuidToBin(aplicacion_id)])
+    if (!datos) {
+      throw new Error('No se encontraron datos')
+    }
+
+    datos.map((dato: any) => {
+      if (dato.empresa_id) dato.empresa_id = binToUUID(dato.empresa_id)
+      if (dato.dias_venta) dato.dias_venta = parseDays(dato.dias_venta)
+    })
+
+    return datos
+  }
 }
 
 export default new EmpresaModel()
