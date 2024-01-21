@@ -14,6 +14,14 @@ export const getUsuario = asyncHandler(async (req: Request, res: Response) => {
   handleDataAndResponse(res, result)
 })
 
+export const getUsuarioByAplicacion = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params
+    const result = await usuarioModel.findByAplicacion(id)
+    handleDataAndResponse(res, result)
+  }
+)
+
 export const createUsuario = asyncHandler(
   async (req: Request, res: Response) => {
     const result = await usuarioModel.create(req.body)

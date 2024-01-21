@@ -30,6 +30,31 @@ class UsuarioModel extends ModelWithUUID {
     return result
   }
 
+  async findByAplicacion(id: string) {
+    const result = await super.findByQuery(
+      `SELECT 
+      u.usuario_id,
+      a.nombre as aplicacion,
+      u.nombre,
+      u.apellido,
+      u.email,
+      u.username,
+      u.created_at,
+      u.updated_at 
+      FROM usuarios as u
+      join aplicacion as a on a.aplicacion_id = u.aplicacion_id
+      where u.aplicacion_id = ?
+      `,
+      [uuidToBin(id)]
+    )
+    if (!result) return result
+    result.map((usuario: any) => {
+      usuario.usuario_id = binToUUID(usuario.usuario_id)
+      delete usuario.password
+    })
+    return result
+  }
+
   async findByUUID(id: string) {
     const result = await super.findByUUID(id)
     if (!result[0]) return result
