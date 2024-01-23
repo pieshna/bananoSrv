@@ -21,12 +21,6 @@ export const getComprasUltimos30Dias = asyncHandler(
   }
 )
 
-const getPagado = (total_pagado: number, total: number) => {
-  if (total_pagado == total) return 1
-  if (total_pagado == 0) return 0
-  return 2
-}
-
 export const createCompra = asyncHandler(
   async (req: Request, res: Response) => {
     const array = req.body
@@ -38,16 +32,7 @@ export const createCompra = asyncHandler(
       array.forEach((compra: any) => {
         delete compra.cliente_id
       })
-      const resultado = await compraModel.createMany(array)
-      const compra_id = resultado.insertId
-
-      const compraObj = array.map((compra: any) => {
-        return {
-          compra_id,
-          pagado: getPagado(compra.total_pagado, compra.total)
-        }
-      })
-      await compraModel.createCompra({ cliente_id, compraObj: compraObj })
+      const resultado = await compraModel.nuevaCompra(array, cliente_id)
       handleDataAndResponse(res, resultado, 201)
     }
   }

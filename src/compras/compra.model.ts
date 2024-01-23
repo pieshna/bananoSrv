@@ -23,6 +23,12 @@ interface comprasDB {
   updated_at: string
 }
 
+const getPagado = (total_pagado: number, total: number) => {
+  if (total_pagado == total) return 1
+  if (total_pagado == 0) return 0
+  return 2
+}
+
 class CompraModel extends ModelWithUUID {
   constructor() {
     super('compras', 'compra_id')
@@ -56,6 +62,30 @@ class CompraModel extends ModelWithUUID {
   async createMany(data: any) {
     const result = await super.createManyUUID(data)
     return result
+  }
+
+  async nuevaCompra(array: any, cliente_id: string) {
+    const conn = await super.getConnection
+    let resultado = null
+    await conn.beginTransaction()
+    try {
+      resultado = await this.createMany(array)
+      const compra_id = resultado.insertId
+
+      const compraObj = array.map((compra: any) => {
+        return {
+          compra_id,
+          pagado: getPagado(compra.total_pagado, compra.total)
+        }
+      })
+      await this.createCompra({ cliente_id, compraObj: compraObj })
+      conn.commit()
+    } catch (error) {
+      conn.rollback()
+    } finally {
+      conn.destroy()
+    }
+    return resultado
   }
 
   async createCompra({ cliente_id, compraObj }: Clientes_ComprasInterface) {
