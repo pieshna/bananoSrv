@@ -1,17 +1,28 @@
-import connection from '../db/connection'
+import conn, { connectionType } from '../db/connection'
 import { addCreatedAt, addUpdatedAt } from '../tools/datesTools'
 
 export class DefaultModel {
-  constructor(private readonly table: string) {}
+  private connection: connectionType
+  constructor(private readonly table: string) {
+    this.connection = conn
+  }
+
+  get getConnection() {
+    return this.connection.getConnection()
+  }
+
+  get getConnectionPure() {
+    return this.connection
+  }
 
   private async query(sql: string, params?: any[]) {
     try {
-      const [rows] = await connection.query(sql, params)
+      const [rows] = await this.connection.query(sql, params)
       return JSON.parse(JSON.stringify(rows))
     } catch (e: any) {
       if (e.code === 'PROTOCOL_CONNECTION_LOST' || e.code === 'ECONNRESET') {
-        await connection.getConnection()
-        const [rows] = await connection.query(sql, params)
+        await this.connection.getConnection()
+        const [rows] = await this.connection.query(sql, params)
         return JSON.parse(JSON.stringify(rows))
       }
       console.log(e)
@@ -150,5 +161,21 @@ export class DefaultModel {
 
   protected async findByQuery(query: string, params?: any[]) {
     return this.query(query, params)
+  }
+
+  protected async executeTransaction(queryFunctions: any[]) {
+    const conn = await this.connection.getConnection()
+    await conn.beginTransaction()
+    try {
+      for (const queryFunction of queryFunctions) {
+        await queryFunction()
+      }
+      await conn.commit()
+    } catch (error) {
+      await conn.rollback()
+      throw error
+    } finally {
+      conn.release()
+    }
   }
 }
