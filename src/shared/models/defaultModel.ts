@@ -9,8 +9,10 @@ export class DefaultModel {
       const [rows] = await connection.query(sql, params)
       return JSON.parse(JSON.stringify(rows))
     } catch (e: any) {
-      if (e.code === 'PROTOCOL_CONNECTION_LOST') {
-        connection.getConnection()
+      if (e.code === 'PROTOCOL_CONNECTION_LOST' || e.code === 'ECONNRESET') {
+        await connection.getConnection()
+        const [rows] = await connection.query(sql, params)
+        return JSON.parse(JSON.stringify(rows))
       }
       console.log(e)
       throw e
