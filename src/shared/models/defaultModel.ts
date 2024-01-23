@@ -12,6 +12,7 @@ export class DefaultModel {
       if (e.code === 'PROTOCOL_CONNECTION_LOST') {
         connection.getConnection()
       }
+      console.log(e)
       throw e
     }
   }
