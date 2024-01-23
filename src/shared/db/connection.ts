@@ -12,4 +12,6 @@ const connection = mysql.createPool({
   queueLimit: 0
 })
 
+export type connectionType = typeof connection
+
 export default connection
