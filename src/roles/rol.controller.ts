@@ -14,6 +14,13 @@ export const getRol = asyncHandler(async (req: Request, res: Response) => {
   handleDataAndResponse(res, result)
 })
 
+export const getRolesWithSuperAdmin = asyncHandler(
+  async (req: Request, res: Response) => {
+    const result = await rolModel.getRolesWithSuperAdmin()
+    handleDataAndResponse(res, result)
+  }
+)
+
 export const createRol = asyncHandler(async (req: Request, res: Response) => {
   const result = await rolModel.create(req.body)
   handleDataAndResponse(res, result, 201)
