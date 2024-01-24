@@ -96,8 +96,23 @@ class UsuarioModel extends ModelWithUUID {
   async update(id: string, data: any) {
     const { aplicacion_id } = data
     data.aplicacion_id = uuidToBin(aplicacion_id)
-    const result = await super.update(id, data)
-    return result
+    const rol_id = data.rol_id
+    delete data.rol_id
+    const con = await super.getConnection
+    await con.beginTransaction()
+    const sql =
+      'UPDATE usuarios_roles SET rol_id = uuid_to_bin(?) WHERE usuario_id = uuid_to_bin(?)'
+    try {
+      const result = await super.update(id, data)
+      await con.query(sql, [rol_id, id])
+      await con.commit()
+      return result
+    } catch (error) {
+      await con.rollback()
+      throw new Error('Error al actualizar el usuario')
+    } finally {
+      con.release()
+    }
   }
 
   async delete(id: string) {
