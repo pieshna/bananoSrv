@@ -66,10 +66,9 @@ class CompraModel extends ModelWithUUID {
 
   async nuevaCompra(array: any, cliente_id: string) {
     const conn = await super.getConnection
-    let resultado = null
     await conn.beginTransaction()
     try {
-      resultado = await this.createMany(array)
+      const resultado = await this.createMany(array)
       const compra_id = resultado.insertId
 
       const compraObj = array.map((compra: any) => {
@@ -79,13 +78,14 @@ class CompraModel extends ModelWithUUID {
         }
       })
       await this.createCompra({ cliente_id, compraObj: compraObj })
-      conn.commit()
+      await conn.commit()
+      return resultado
     } catch (error) {
       conn.rollback()
+      throw new Error('Error al crear la compra')
     } finally {
-      conn.destroy()
+      conn.release()
     }
-    return resultado
   }
 
   async createCompra({ cliente_id, compraObj }: Clientes_ComprasInterface) {
@@ -195,12 +195,20 @@ class CompraModel extends ModelWithUUID {
   }
 
   async delete(compra_id: string) {
-    await super.findByQuery(
-      'DELETE FROM clientes_compras WHERE compra_id = ?',
-      [compra_id]
-    )
-    const result = await super.delete(compra_id)
-    return result
+    const conn = await super.getConnection
+    await conn.beginTransaction()
+    try {
+      const sql = 'delete from clientes_compras where compra_id = ?'
+      await super.findByQuery(sql, [uuidToBin(compra_id)])
+      await super.delete(compra_id)
+      await conn.commit()
+      return { message: 'Compra eliminada' }
+    } catch (error) {
+      conn.rollback()
+      throw new Error('Error al eliminar la compra')
+    } finally {
+      conn.release()
+    }
   }
 }
 
