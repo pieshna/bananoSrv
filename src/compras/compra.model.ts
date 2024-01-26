@@ -42,6 +42,7 @@ class CompraModel extends ModelWithUUID {
     concat(cl.nombre, ' ',
     coalesce(cl.apellido, '')
     ) as cliente,
+    s.nombre as sucursal,
     c.cantidad_quintales,
     c.quintales_porcentaje,
     c.precio_quintal,
@@ -52,6 +53,7 @@ class CompraModel extends ModelWithUUID {
     from compras as c
     left join clientes_compras as cc on c.compra_id = cc.compra_id
     left join clientes as cl on cc.cliente_id = cl.cliente_id
+    left join sucursal as s on c.sucursal_id = s.sucursal_id
     order by c.created_at desc
     
     `
@@ -60,6 +62,9 @@ class CompraModel extends ModelWithUUID {
   }
 
   async createMany(data: any) {
+    data.map((dato: any) => {
+      dato.sucursal_id = uuidToBin(dato.sucursal_id)
+    })
     const result = await super.createManyUUID(data)
     return result
   }
@@ -169,6 +174,7 @@ class CompraModel extends ModelWithUUID {
   }
 
   async update(uuid: string, json: any): Promise<any> {
+    json.sucursal_id = uuidToBin(json.sucursal_id)
     const result = await super.update(uuid, json)
 
     const totalPagado = json['total_pagado'] as number
@@ -209,6 +215,13 @@ class CompraModel extends ModelWithUUID {
     } finally {
       conn.release()
     }
+  }
+
+  async findByUUID(uuid: string): Promise<any> {
+    const result = await super.findByUUID(uuid)
+    result[0].sucursal_id = binToUUID(result[0].sucursal_id)
+
+    return result
   }
 }
 
