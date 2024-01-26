@@ -1,5 +1,5 @@
 interface NavbarItem {
-  id: string
+  navbar_id: string
   title: string
   link: string
   icon: string | null
@@ -25,7 +25,7 @@ export const convertToNavbarStructure = (
 
   data.forEach((item) => {
     if (!item.parent_id) {
-      navbarItems[item.id] = {
+      navbarItems[item.navbar_id] = {
         ...item
       }
     }

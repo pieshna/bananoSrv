@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
 export const administacionSchema = z.object({
-  id: z.number().nonnegative(),
-  campo: z.string().nonempty(),
-  tiempo: z.number().nonnegative()
+  administracion_id: z.string().uuid().optional(),
+  nombre: z.string().max(50),
+  descripcion: z.string().max(255).optional(),
+  tiempo: z.string()
 })

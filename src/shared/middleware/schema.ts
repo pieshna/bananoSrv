@@ -6,8 +6,11 @@ export const schemaValidation =
   (schema: AnyZodObject) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = schema.parse(req.body)
-      req.body = result
+      if (Array.isArray(req.body)) {
+        req.body = req.body.map((obj) => schema.parse(obj))
+      } else {
+        req.body = schema.parse(req.body)
+      }
       next()
     } catch (error: any) {
       if (error instanceof ZodError) {
