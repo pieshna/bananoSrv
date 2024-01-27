@@ -9,7 +9,8 @@ export const compraSchema = z.object({
   total_pagado: z.number().optional(),
   total: z.number().optional(),
   cliente_id: z.string().uuid().optional(),
-  sucursal_id: z.string().uuid().optional()
+  sucursal_id: z.string().uuid().optional(),
+  detalle: z.string().optional()
 })
 
 export const compraSchemaArray = z.array(compraSchema)
