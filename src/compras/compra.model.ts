@@ -175,6 +175,7 @@ class CompraModel extends ModelWithUUID {
 
   async update(uuid: string, json: any): Promise<any> {
     json.sucursal_id = uuidToBin(json.sucursal_id)
+    delete json.cliente_id
     const result = await super.update(uuid, json)
 
     const totalPagado = json['total_pagado'] as number
@@ -218,8 +219,23 @@ class CompraModel extends ModelWithUUID {
   }
 
   async findByUUID(uuid: string): Promise<any> {
-    const result = await super.findByUUID(uuid)
-    result[0].sucursal_id = binToUUID(result[0].sucursal_id)
+    const sql = `
+    SELECT
+    bin_to_uuid(c.compra_id) as compra_id,
+    c.fecha_compra,
+    bin_to_uuid(c.sucursal_id) as sucursal_id,
+    bin_to_uuid(cc.cliente_id) as cliente_id,
+    cantidad_quintales,
+    quintales_porcentaje,
+    precio_quintal,
+    total_pagado,
+    total,
+    detalle
+    from compras as c
+    left join clientes_compras as cc on c.compra_id = cc.compra_id
+    where c.compra_id = ?
+    `
+    const result = await super.findByQuery(sql, [uuidToBin(uuid)])
 
     return result
   }

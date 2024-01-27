@@ -41,7 +41,7 @@ export const createCompra = asyncHandler(
 export const updateCompra = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params
-    const result = await compraModel.update(id, req.body)
+    const result = await compraModel.update(id, req.body[0])
     handleDataAndResponse(res, result)
   }
 )
