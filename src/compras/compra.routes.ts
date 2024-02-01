@@ -3,9 +3,10 @@ import {
   createCompra,
   getCompra,
   getCompras,
-  getComprasUltimos30Dias,
   deleteCompra,
-  updateCompra
+  updateCompra,
+  getCompraByDates,
+  getQuintalesByDays
 } from './compra.controller'
 import { compraSchema, compraSchemaArray } from './compra.schema'
 import { schemaValidation } from '../shared/middleware/schema'
@@ -13,9 +14,10 @@ import { schemaValidation } from '../shared/middleware/schema'
 const router = Router()
 
 router.get('/', getCompras)
-router.get('/ultimos30dias', getComprasUltimos30Dias)
+router.get('/quintales/:days', getQuintalesByDays)
 router.get('/:id', getCompra)
 router.post('/', schemaValidation(compraSchema), createCompra)
+router.post('/bydates', getCompraByDates)
 router.put('/:id', schemaValidation(compraSchema), updateCompra)
 router.delete('/:id', deleteCompra)
 

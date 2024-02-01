@@ -111,68 +111,6 @@ class CompraModel extends ModelWithUUID {
     return result
   }
 
-  async findLast30Days() {
-    const result = await super.findByQuery(
-      `SELECT 
-      bin_to_uuid(compra_id) as compra_id,
-      fecha_compra,
-      cantidad_quintales,
-      quintales_porcentaje,
-      precio_quintal,
-      total_pagado,
-      total
-       FROM compras WHERE fecha_compra >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-       order by fecha_compra asc
-       `
-    )
-    const compras: comprasDB[] = result
-
-    compras.forEach((compra) => {
-      compra.fecha_compra = compra.fecha_compra
-        .split('T')[0]
-        .split('-')
-        .reverse()
-        .join('/')
-      compra.cantidad_quintales = parseFloat(
-        compra.cantidad_quintales.toString()
-      )
-      compra.quintales_porcentaje = parseFloat(
-        compra.quintales_porcentaje.toString()
-      )
-      compra.total_pagado = parseFloat(compra.total_pagado.toString())
-      compra.total = parseFloat(compra.total.toString())
-    })
-
-    //group by fecha_compra and sum values
-    const comprasGroup = compras.reduce((r: any, a: any) => {
-      if (!r[a.fecha_compra]) {
-        r[a.fecha_compra] = {
-          cantidad_quintales: 0,
-          quintales_porcentaje: 0,
-          total_pagado: 0,
-          total: 0
-        }
-      }
-      r[a.fecha_compra].cantidad_quintales += a.cantidad_quintales
-      r[a.fecha_compra].quintales_porcentaje += a.quintales_porcentaje
-      r[a.fecha_compra].total_pagado += a.total_pagado
-      r[a.fecha_compra].total += a.total
-      return r
-    }, {})
-
-    const comprasGroupArray = Object.keys(comprasGroup).map((key) => {
-      return {
-        fecha_compra: key,
-        cantidad_quintales: comprasGroup[key].cantidad_quintales,
-        quintales_porcentaje: comprasGroup[key].quintales_porcentaje,
-        total_pagado: comprasGroup[key].total_pagado,
-        total: comprasGroup[key].total
-      }
-    })
-
-    return comprasGroupArray
-  }
-
   async update(uuid: string, json: any): Promise<any> {
     json.sucursal_id = uuidToBin(json.sucursal_id)
     delete json.cliente_id
@@ -237,6 +175,81 @@ class CompraModel extends ModelWithUUID {
     `
     const result = await super.findByQuery(sql, [uuidToBin(uuid)])
 
+    return result
+  }
+
+  async findComprasByDates(fechaInicio: string, fechaFin: string) {
+    const sql = `
+    SELECT 
+      bin_to_uuid(compra_id) as compra_id,
+      fecha_compra,
+      cantidad_quintales,
+      quintales_porcentaje,
+      precio_quintal,
+      total_pagado,
+      total
+       FROM compras WHERE (fecha_compra BETWEEN ? AND ?)
+        order by fecha_compra asc
+        `
+    const result = await super.findByQuery(sql, [fechaInicio, fechaFin])
+    const compras: comprasDB[] = result
+
+    compras.forEach((compra) => {
+      compra.fecha_compra = compra.fecha_compra
+        .split('T')[0]
+        .split('-')
+        .reverse()
+        .join('/')
+      compra.cantidad_quintales = parseFloat(
+        compra.cantidad_quintales.toString()
+      )
+      compra.quintales_porcentaje = parseFloat(
+        compra.quintales_porcentaje.toString()
+      )
+      compra.total_pagado = parseFloat(compra.total_pagado.toString())
+      compra.total = parseFloat(compra.total.toString())
+    })
+
+    //group by fecha_compra and sum values
+    const comprasGroup = compras.reduce((r: any, a: any) => {
+      if (!r[a.fecha_compra]) {
+        r[a.fecha_compra] = {
+          cantidad_quintales: 0,
+          quintales_porcentaje: 0,
+          total_pagado: 0,
+          total: 0
+        }
+      }
+      r[a.fecha_compra].cantidad_quintales += a.cantidad_quintales
+      r[a.fecha_compra].quintales_porcentaje += a.quintales_porcentaje
+      r[a.fecha_compra].total_pagado += a.total_pagado
+      r[a.fecha_compra].total += a.total
+      return r
+    }, {})
+
+    const comprasGroupArray = Object.keys(comprasGroup).map((key) => {
+      return {
+        fecha_compra: key,
+        cantidad_quintales: comprasGroup[key].cantidad_quintales,
+        quintales_porcentaje: comprasGroup[key].quintales_porcentaje,
+        total_pagado: comprasGroup[key].total_pagado,
+        total: comprasGroup[key].total
+      }
+    })
+
+    return comprasGroupArray
+  }
+
+  async getTotalQuintalesByLastestDays(days: number) {
+    const sql = `
+    SELECT 
+    sum(cantidad_quintales) as cantidad_quintales,
+    sum(total_pagado) as total_pagado,
+    sum(total) as total
+    FROM compras
+    WHERE fecha_compra >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+    `
+    const result = await super.findByQuery(sql, [days])
     return result
   }
 }

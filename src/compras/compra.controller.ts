@@ -14,9 +14,20 @@ export const getCompra = asyncHandler(async (req: Request, res: Response) => {
   handleDataAndResponse(res, result)
 })
 
-export const getComprasUltimos30Dias = asyncHandler(
+export const getQuintalesByDays = asyncHandler(
   async (req: Request, res: Response) => {
-    const result = await compraModel.findLast30Days()
+    const { days } = req.params
+    const result = await compraModel.getTotalQuintalesByLastestDays(
+      parseInt(days)
+    )
+    handleDataAndResponse(res, result)
+  }
+)
+
+export const getCompraByDates = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { fechaInicio, fechaFinal } = req.body
+    const result = await compraModel.findComprasByDates(fechaInicio, fechaFinal)
     handleDataAndResponse(res, result)
   }
 )
