@@ -16,6 +16,7 @@ import comprasRoutes from './compras/compra.routes'
 import empresasRoutes from './empresas/empresa.routes'
 import precioRoutes from './precios/precio.routes'
 import sucursalRoutes from './sucursales/sucursal.routes'
+import ventasRoutes from './ventas/venta.routes'
 
 const router = express.Router()
 
@@ -44,5 +45,6 @@ router.use('/compras', comprasRoutes)
 router.use('/empresas', empresasRoutes)
 router.use('/precios', precioRoutes)
 router.use('/sucursales', sucursalRoutes)
+router.use('/ventas', ventasRoutes)
 
 export default router
