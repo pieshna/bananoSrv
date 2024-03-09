@@ -249,7 +249,26 @@ class CompraModel extends ModelWithUUID {
     FROM compras
     WHERE fecha_compra >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
     `
-    const result = await super.findByQuery(sql, [days])
+
+    const sqlVentas = `
+    SELECT
+    sum(cantidad_quintales) as cantidad_quintales
+    FROM ventas
+    WHERE fecha_venta >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+    `
+    const ventas = await super.findByQuery(sqlVentas, [days])
+
+    const compras = await super.findByQuery(sql, [days])
+
+    const result = compras.map((compra: any) => {
+      return {
+        cantidad_quintales: compra.cantidad_quintales,
+        total_pagado: compra.total_pagado,
+        total: compra.total,
+        cantidad_quintales_ventas: ventas[0].cantidad_quintales
+      }
+    })
+
     return result
   }
 }
