@@ -265,7 +265,7 @@ class CompraModel extends ModelWithUUID {
         cantidad_quintales: compra.cantidad_quintales,
         total_pagado: compra.total_pagado,
         total: compra.total,
-        cantidad_quintales_ventas: ventas[0].cantidad_quintales
+        cantidad_quintales_ventas: ventas[0].cantidad_quintales ?? 0
       }
     })
 
