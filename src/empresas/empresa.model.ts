@@ -113,6 +113,74 @@ class EmpresaModel extends ModelWithUUID {
 
     return datos
   }
+
+  async findByDates(fecha: string) {
+    const sql = `select
+    e.empresa_id, e.nombre,e.direccion,
+    e.telefono,ed.dias_venta,ed.precio_quintal
+    from empresas e
+    left join empresas_detalle ed on e.empresa_id = ed.empresa_id
+    where e.activo = 1`
+    const datos = await super.findByQuery(sql)
+    if (!datos) {
+      throw new Error('No se encontraron datos')
+    }
+
+    datos.map((dato: any) => {
+      if (dato.empresa_id) dato.empresa_id = binToUUID(dato.empresa_id)
+    })
+
+    const dayOfWeek = new Date(fecha).getDay()
+    const DiasArray = [
+      'Lunes',
+      'Martes',
+      'Miercoles',
+      'Jueves',
+      'Viernes',
+      'Sabado',
+      'Domingo'
+    ]
+    const diaString = DiasArray.filter((dia, index) => {
+      if (
+        index === (dayOfWeek - 1 == -1 ? 6 : dayOfWeek - 1) ||
+        index === dayOfWeek ||
+        index === dayOfWeek + 1
+      ) {
+        return dia
+      }
+    })
+
+    const empresas = datos.filter((dato: any) => {
+      const dias = dato.dias_venta.split(',')
+      const diasArray = dias.map((dia: string) => {
+        if (dia === 'true') {
+          return true
+        } else {
+          return false
+        }
+      })
+
+      const result = diasArray.filter((dia: boolean, index: number) => {
+        if (dia && diaString.includes(DiasArray[index])) {
+          return true
+        } else {
+          return false
+        }
+      })
+
+      if (result.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    })
+
+    const formated = empresas.map((empresa: any) => {
+      if (empresa.dias_venta) empresa.dias_venta = parseDays(empresa.dias_venta)
+      return empresa
+    })
+    return formated
+  }
 }
 
 export default new EmpresaModel()
