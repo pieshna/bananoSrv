@@ -74,6 +74,28 @@ class GastoModel extends ModelWithUUID {
     }
     return datos
   }
+
+  async countTotalByDay(fecha: string) {
+    const datos = await super.findByQuery('select * from gastos')
+    if (!datos) {
+      throw new Error('No se encontraron datos')
+    }
+    let total = 0
+
+    const dayOfWeek = new Date(fecha).getDay()
+
+    datos.map((dato: any) => {
+      dato.dias = dato.dias.split(',')
+      if (
+        dato.dias[dayOfWeek] === 'true' ||
+        dato.dias[(dayOfWeek - 1) % 7] === 'true' ||
+        dato.dias[(dayOfWeek + 1) % 7] === 'true'
+      ) {
+        total += parseFloat(dato.monto)
+      }
+    })
+    return total
+  }
 }
 
 export default new GastoModel()

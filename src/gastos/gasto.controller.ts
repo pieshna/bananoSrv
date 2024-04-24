@@ -15,6 +15,14 @@ export const getGasto = asyncHandler(async (req: Request, res: Response) => {
   handleDataAndResponse(res, result)
 })
 
+export const countTotalByDay = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { day } = req.params
+    const result = await gastoModel.countTotalByDay(day)
+    handleDataAndResponse(res, result)
+  }
+)
+
 export const createGasto = asyncHandler(async (req: Request, res: Response) => {
   req.body.aplicacion_id = uuidToBin(req.body.aplicacion_id)
   req.body.dias = req.body.dias.toString()
