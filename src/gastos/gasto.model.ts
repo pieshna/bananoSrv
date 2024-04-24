@@ -89,7 +89,7 @@ class GastoModel extends ModelWithUUID {
       if (
         dato.dias[dayOfWeek] === 'true' ||
         dato.dias[(dayOfWeek - 1) % 7] === 'true' ||
-        dato.dias[(dayOfWeek + 1) % 7] === 'true'
+        dato.dias[(dayOfWeek - 2) % 7] === 'true'
       ) {
         total += parseFloat(dato.monto)
       }
