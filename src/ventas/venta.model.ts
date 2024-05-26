@@ -1,4 +1,5 @@
 import { ModelWithUUID } from '../shared/models/modelWithUUID'
+import { binToUUID } from '../shared/tools/uuidTools'
 
 class VentaModel extends ModelWithUUID {
   constructor() {
@@ -92,6 +93,66 @@ class VentaModel extends ModelWithUUID {
       await conn.rollback()
       throw new Error('Error al eliminar la venta')
     }
+  }
+
+  async getDataVentas(uuid: string) {
+    const sql = `
+    select sum(v.cantidad_quintales) as total_quintales
+    from ventas as v
+    left join empresas_ventas as ev on v.venta_id = ev.venta_id
+    where empresa_id = uuid_to_bin(?)
+    `
+    const quintales = await super.findByQuery(sql, [uuid])
+
+    const sql2 = `
+    select v.* from ventas as v
+    left join empresas_ventas as ev on v.venta_id = ev.venta_id
+    where empresa_id = uuid_to_bin(?)
+    `
+    const ventas = await super.findByQuery(sql2, [uuid])
+
+    ventas.map((venta: any) => {
+      venta.venta_id = binToUUID(venta.venta_id)
+    })
+
+    return [{ quintales, ventas, totalVentas: ventas.length }]
+  }
+
+  async getDataVentasByDates(
+    fechaInicio: string,
+    fechaFin: string,
+    empresa_id: string
+  ) {
+    const sql = `
+      select sum(v.cantidad_quintales) as total_quintales
+      from ventas as v
+      left join empresas_ventas as ev on v.venta_id = ev.venta_id
+      where empresa_id = uuid_to_bin(?)
+      and v.fecha_venta between ? and ?
+      `
+    const quintales = await super.findByQuery(sql, [
+      empresa_id,
+      fechaInicio,
+      fechaFin
+    ])
+
+    const sql2 = `
+      select v.* from ventas as v
+      left join empresas_ventas as ev on v.venta_id = ev.venta_id
+      where empresa_id = uuid_to_bin(?)
+      and v.fecha_venta between ? and ?
+      `
+    const ventas = await super.findByQuery(sql2, [
+      empresa_id,
+      fechaInicio,
+      fechaFin
+    ])
+
+    ventas.map((venta: any) => {
+      venta.venta_id = binToUUID(venta.venta_id)
+    })
+
+    return [{ quintales, ventas, totalVentas: ventas.length }]
   }
 }
 
