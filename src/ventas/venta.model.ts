@@ -105,9 +105,10 @@ class VentaModel extends ModelWithUUID {
     const quintales = await super.findByQuery(sql, [uuid])
 
     const sql2 = `
-    select v.* from ventas as v
+    select v.*, e.nombre from ventas as v
     left join empresas_ventas as ev on v.venta_id = ev.venta_id
-    where empresa_id = uuid_to_bin(?)
+    left join empresas as e on ev.empresa_id = e.empresa_id
+    where e.empresa_id = uuid_to_bin(?)
     `
     const ventas = await super.findByQuery(sql2, [uuid])
 
@@ -115,7 +116,14 @@ class VentaModel extends ModelWithUUID {
       venta.venta_id = binToUUID(venta.venta_id)
     })
 
-    return [{ quintales, ventas, totalVentas: ventas.length }]
+    return [
+      {
+        quintales,
+        ventas,
+        total_ventas: ventas.length,
+        empresa: ventas[0].nombre
+      }
+    ]
   }
 
   async getDataVentasByDates(
@@ -137,9 +145,10 @@ class VentaModel extends ModelWithUUID {
     ])
 
     const sql2 = `
-      select v.* from ventas as v
+      select v.*,e.nombre from ventas as v
       left join empresas_ventas as ev on v.venta_id = ev.venta_id
-      where empresa_id = uuid_to_bin(?)
+      left join empresas as e on ev.empresa_id = e.empresa_id
+      where e.empresa_id = uuid_to_bin(?)
       and v.fecha_venta between ? and ?
       `
     const ventas = await super.findByQuery(sql2, [
