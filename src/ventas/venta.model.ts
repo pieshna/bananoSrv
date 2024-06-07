@@ -161,7 +161,14 @@ class VentaModel extends ModelWithUUID {
       venta.venta_id = binToUUID(venta.venta_id)
     })
 
-    return [{ quintales, ventas, totalVentas: ventas.length }]
+    return [
+      {
+        quintales,
+        ventas,
+        total_ventas: ventas.length,
+        empresa: ventas[0]?.nombre
+      }
+    ]
   }
 }
 
